@@ -38,6 +38,8 @@ public class VentanaJuego extends javax.swing.JFrame {
         }
     });
     
+    Marciano miMarciano = new Marciano(ANCHOPANTALLA);
+    
     /**
      * Creates new form VentanaJuego
      */
@@ -61,9 +63,11 @@ public class VentanaJuego extends javax.swing.JFrame {
         g2.setColor(Color.BLACK);
         g2.fillRect(0, 0, ANCHOPANTALLA, ALTOPANTALLA);
         
-        //////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////
+        g2.drawImage(miMarciano.imagen1, 10, 10, null);
         
-        //////////////////////////////////////////////////////////
+        
+        ////////////////////////////////////////////////////////////////////
         //Dibujo de golpe todo el buffer sobre el jPanel1
         g2 = (Graphics2D) jPanel1.getGraphics();
         g2.drawImage(buffer, 0, 0, null);
