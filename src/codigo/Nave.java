@@ -18,7 +18,24 @@ public class Nave {
     public int posY = 0;
     
     private boolean pulsadoIzquierda = false;
+    
+    public boolean isPulsadoIzquierda() {
+        return pulsadoIzquierda;
+    }
+    public void setPulsadoIzquierda(boolean pulsadoIzquierda) {
+        this.pulsadoIzquierda = pulsadoIzquierda;
+        this.pulsadoDerecha = false;
+    }
+
     private boolean pulsadoDerecha = false;
+    
+    public boolean isPulsadoDerecha() {
+        return pulsadoDerecha;
+    }
+    public void setPulsadoDerecha(boolean pulsadoDerecha) {
+        this.pulsadoDerecha = pulsadoDerecha;
+        this.pulsadoIzquierda = false;
+    }  
     
     public Nave(){
         try{
@@ -30,11 +47,11 @@ public class Nave {
     }
     
     public void mueve(){
-        if (pulsadoIzquierda){
-            posX--;
+        if (pulsadoIzquierda && posX > 0){
+            posX-= 3;
         }
-        if (pulsadoDerecha){
-            posX++;
+        if (pulsadoDerecha && posX < VentanaJuego.ANCHOPANTALLA - imagen.getWidth(null)){
+            posX+= 3;
         }
     }
     

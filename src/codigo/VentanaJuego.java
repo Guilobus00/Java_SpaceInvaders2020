@@ -9,6 +9,7 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import javax.swing.Timer;
 
@@ -41,6 +42,7 @@ public class VentanaJuego extends javax.swing.JFrame {
     
     Marciano miMarciano = new Marciano(ANCHOPANTALLA);
     Nave miNave = new Nave();
+    Disparo miDisparo = new Disparo();
     
     public VentanaJuego() {
         initComponents();
@@ -74,9 +76,12 @@ public class VentanaJuego extends javax.swing.JFrame {
         } else{
             contador = 0;
         }
+        
         //Dibujo la nave
         g2.drawImage(miNave.imagen, miNave.posX, miNave.posY, null);
-        
+        g2.drawImage(miDisparo.imagen, miDisparo.posX, miDisparo.posY, null);
+        miNave.mueve();
+        miDisparo.mueve();
         
         ////////////////////////////////////////////////////////////////////
         //Dibujo de golpe todo el buffer sobre el jPanel1
@@ -97,6 +102,14 @@ public class VentanaJuego extends javax.swing.JFrame {
         jPanel1 = new javax.swing.JPanel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                formKeyPressed(evt);
+            }
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                formKeyReleased(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -122,6 +135,22 @@ public class VentanaJuego extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void formKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_formKeyPressed
+        switch(evt.getKeyCode()){
+            case KeyEvent.VK_LEFT: miNave.setPulsadoIzquierda(true); break;
+            case KeyEvent.VK_RIGHT: miNave.setPulsadoDerecha(true); break;
+            case KeyEvent.VK_SPACE: miDisparo.posicionaDisparo(miNave); break;
+        }
+    }//GEN-LAST:event_formKeyPressed
+
+    private void formKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_formKeyReleased
+        switch(evt.getKeyCode()){
+            case KeyEvent.VK_LEFT: miNave.setPulsadoIzquierda(false); break;
+            case KeyEvent.VK_RIGHT: miNave.setPulsadoDerecha(false); break;
+            
+        }
+    }//GEN-LAST:event_formKeyReleased
 
     /**
      * @param args the command line arguments
