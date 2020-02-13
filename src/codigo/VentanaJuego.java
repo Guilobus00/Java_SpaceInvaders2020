@@ -15,7 +15,10 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.imageio.ImageIO;
+import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.Timer;
 
 /**
@@ -36,13 +39,7 @@ public class VentanaJuego extends javax.swing.JFrame {
     Image[] imagenes = new Image[30];
     
 
-    Timer temporizador = new Timer(10, new ActionListener() {//bucle de animacion del juego. refresca el contenido de la pantalla
-        @Override
-        public void actionPerformed(ActionEvent ae) {
-            //TODO: codigo de animacion
-            bucleJuego();
-        }
-    });
+    Timer temporizador;
 
     Marciano marciano = new Marciano(ANCHOPANTALLA);//inicializo el marciano
     Nave miNave = new Nave();
@@ -59,6 +56,17 @@ public class VentanaJuego extends javax.swing.JFrame {
      * Creates new form VentanaJuego
      */
     public VentanaJuego() {
+        this.temporizador = new Timer(10, new ActionListener() {//bucle de animacion del juego. refresca el contenido de la pantalla
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                try {
+                    //TODO: codigo de animacion
+                    bucleJuego();
+                } catch (UnsupportedAudioFileException | IOException ex) {
+                    Logger.getLogger(VentanaJuego.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        });
 
         initComponents();
 
@@ -164,7 +172,7 @@ public class VentanaJuego extends javax.swing.JFrame {
     }
     
     
-    private void bucleJuego() {//redibuja los objetos en el jPanel1
+    private void bucleJuego() throws UnsupportedAudioFileException, IOException {//redibuja los objetos en el jPanel1
 
         Graphics2D g2 = (Graphics2D) buffer.getGraphics();//borro todo lo que ahi en el buffer
 
@@ -186,7 +194,7 @@ public class VentanaJuego extends javax.swing.JFrame {
     }
 
     //chequea si un disparo y un marciano colisionan
-    private void chequeaColision() {
+    private void chequeaColision() throws UnsupportedAudioFileException, IOException {
         Rectangle2D.Double rectanguloMarciano = new Rectangle2D.Double();
         Rectangle2D.Double rectanguloDisparo = new Rectangle2D.Double();
 
@@ -213,7 +221,8 @@ public class VentanaJuego extends javax.swing.JFrame {
                         e.imagen1 = imagenes[23];
                         e.imagen2 = imagenes[22];
                         listaExplosiones.add(e);
-                        
+                        //Suena el sonido
+                        e.sonidoExplosion.start();
                         listaMarcianos[i][j].posY = 2000;
                         listaDisparos.remove(k);
 
@@ -284,6 +293,7 @@ public class VentanaJuego extends javax.swing.JFrame {
                 
             case KeyEvent.VK_SPACE: 
                 Disparo d = new Disparo();
+                d.sonidoDisparo.start();
                 d.posicionaDisparo(miNave);
                 //agregamos el disparo a la lista de disparos
                 listaDisparos.add(d);
