@@ -209,7 +209,7 @@ public class VentanaJuego extends javax.swing.JFrame {
                         //si entra aquí es porque han chocado un marciano y el disparo
                         Explosion e = new Explosion();
                         e.posX = listaMarcianos[i][j].posX;
-                        e.posX = listaMarcianos[i][j].posY;
+                        e.posY = listaMarcianos[i][j].posY;
                         e.imagen1 = imagenes[23];
                         e.imagen2 = imagenes[22];
                         listaExplosiones.add(e);
