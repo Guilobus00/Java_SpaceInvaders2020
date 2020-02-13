@@ -14,6 +14,7 @@ import java.awt.event.KeyEvent;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.ArrayList;
 import javax.imageio.ImageIO;
 import javax.swing.Timer;
 
@@ -46,6 +47,7 @@ public class VentanaJuego extends javax.swing.JFrame {
     Marciano marciano = new Marciano(ANCHOPANTALLA);//inicializo el marciano
     Nave miNave = new Nave();
     Disparo miDisparo = new Disparo();
+    ArrayList<Disparo> listaDisparos = new ArrayList();
 
     //el array de dos dimensiones que guarda la lista de marcianos
     Marciano[][] listaMarcianos = new Marciano[filasMarcianos][columnasMarcianos];
@@ -72,23 +74,29 @@ public class VentanaJuego extends javax.swing.JFrame {
                 
             }
         }
+        imagenes[20] = plantilla.getSubimage(0, 320, 66, 32); //sprite de la nave
+        imagenes[21] = plantilla.getSubimage(66, 320, 64, 32);
+        
         setSize(ANCHOPANTALLA, ALTOPANTALLA);
         jPanel1.setSize(ANCHOPANTALLA, ALTOPANTALLA);
         buffer = (BufferedImage) jPanel1.createImage(ANCHOPANTALLA, ALTOPANTALLA);//inicializo el buffer
         buffer.createGraphics();
 
         temporizador.start();//arranco el temporizador
+        //Si es 20 sale una nave espacial
+        //Si es 21 sale una nave predeterminada (bastante fea)
+        miNave.imagen = imagenes[20];
         miNave.posX = ANCHOPANTALLA / 2 - miNave.imagen.getWidth(this) / 2;
         miNave.posY = ALTOPANTALLA - 100;
         //creamos el array de marcianos
         for (int i = 0; i < filasMarcianos; i++) {
             for (int j = 0; j < columnasMarcianos; j++) {
                 listaMarcianos[i][j] = new Marciano(ANCHOPANTALLA);
-                listaMarcianos[i][j].imagen1 = imagenes[4];
-                listaMarcianos[i][j].imagen2 = imagenes[5];
+                listaMarcianos[i][j].imagen1 = imagenes[2*i];
+                listaMarcianos[i][j].imagen2 = imagenes[2*i+1];
                 listaMarcianos[i][j].posX = j * (15 + listaMarcianos[i][j].imagen1.getWidth(null));
                 listaMarcianos[i][j].posY = i * (10 + listaMarcianos[i][j].imagen1.getHeight(null));
-            }
+             }
         }
         miDisparo.posY = -2000;
     }
@@ -117,6 +125,21 @@ public class VentanaJuego extends javax.swing.JFrame {
         }
     }
 
+    private void pintaDisparos (Graphics2D g2){
+        //pinta todos los disparos 
+        Disparo disparoAux;
+        for (int i=0; i< listaDisparos.size(); i++){
+            disparoAux = listaDisparos.get(i);
+            disparoAux.mueve();
+            if (disparoAux.posY < 0){
+                listaDisparos.remove(i);
+            }
+            else{
+                g2.drawImage(disparoAux.imagen, disparoAux.posX, disparoAux.posY, null);
+            }
+        }
+    }
+    
     private void bucleJuego() {//redibuja los objetos en el jPanel1
 
         Graphics2D g2 = (Graphics2D) buffer.getGraphics();//borro todo lo que ahi en el buffer
@@ -128,9 +151,8 @@ public class VentanaJuego extends javax.swing.JFrame {
         pintaMarcianos(g2);
         //dibujo la nave
         g2.drawImage(miNave.imagen, miNave.posX, miNave.posY, null);
-        g2.drawImage(miDisparo.imagen, miDisparo.posX, miDisparo.posY, null);
+        pintaDisparos(g2);
         miNave.mueve();
-        miDisparo.mueve();
         chequeaColision();
         
         ///////////////////////////////////////////////////
@@ -139,34 +161,35 @@ public class VentanaJuego extends javax.swing.JFrame {
     }
 
     //chequea si un disparo y un marciano colisionan
-    private void chequeaColision(){
+    private void chequeaColision() {
         Rectangle2D.Double rectanguloMarciano = new Rectangle2D.Double();
         Rectangle2D.Double rectanguloDisparo = new Rectangle2D.Double();
-        
-        //calculo el rectangulo que contiene al disparo
-        rectanguloDisparo.setFrame(miDisparo.posX,
-                                    miDisparo.posY, 
-                                    miDisparo.imagen.getWidth(null),
-                                    miDisparo.imagen.getHeight(null));
-        
-        for(int i=0; i<filasMarcianos; i++){
-            for (int j=0; j<columnasMarcianos; j++){
-                //calculo el rectángulo corresponmdiente al marciano que estoy comprobando
-                rectanguloMarciano.setFrame(listaMarcianos[i][j].posX,
-                                            listaMarcianos[i][j].posY,
-                                            listaMarcianos[i][j].imagen1.getWidth(null),
-                                            listaMarcianos[i][j].imagen1.getHeight(null)
-                );
-                if (rectanguloDisparo.intersects(rectanguloMarciano)){
-                    //si entra aquí es porque han chocado un marciano y el disparo
-                    listaMarcianos[i][j].posY = 2000;
-                    miDisparo.posY = -2000;
-                    
+
+        for (int k = 0; k < listaDisparos.size(); k++) {
+            //calculo el rectángulo que contiene al disparo
+            rectanguloDisparo.setFrame(listaDisparos.get(k).posX,
+                    listaDisparos.get(k).posY,
+                    listaDisparos.get(k).imagen.getWidth(null),
+                    listaDisparos.get(k).imagen.getHeight(null));
+
+            for (int i = 0; i < filasMarcianos; i++) {
+                for (int j = 0; j < columnasMarcianos; j++) {
+                    //calculo el rectángulo corresponmdiente al marciano que estoy comprobando
+                    rectanguloMarciano.setFrame(listaMarcianos[i][j].posX,
+                            listaMarcianos[i][j].posY,
+                            listaMarcianos[i][j].imagen1.getWidth(null),
+                            listaMarcianos[i][j].imagen1.getHeight(null)
+                    );
+                    if (rectanguloDisparo.intersects(rectanguloMarciano)) {
+                        //si entra aquí es porque han chocado un marciano y el disparo
+                        listaMarcianos[i][j].posY = 2000;
+                        listaDisparos.remove(k);
+
+                    }
                 }
             }
         }
-        
-        
+
     }
     
     /**
@@ -219,16 +242,32 @@ public class VentanaJuego extends javax.swing.JFrame {
 
     private void formKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_formKeyPressed
         switch(evt.getKeyCode()){
-            case KeyEvent.VK_LEFT: miNave.setPulsadoIzquierda(true); break;
-            case KeyEvent.VK_RIGHT: miNave.setPulsadoDerecha(true); break;
-            case KeyEvent.VK_SPACE: miDisparo.posicionaDisparo(miNave); break;
+            case KeyEvent.VK_LEFT: 
+                miNave.setPulsadoIzquierda(true); 
+                break;
+                
+            case KeyEvent.VK_RIGHT: 
+                miNave.setPulsadoDerecha(true); 
+                break;
+                
+            case KeyEvent.VK_SPACE: 
+                Disparo d = new Disparo();
+                d.posicionaDisparo(miNave);
+                //agregamos el disparo a la lista de disparos
+                listaDisparos.add(d);
+                break;
         }
     }//GEN-LAST:event_formKeyPressed
 
     private void formKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_formKeyReleased
         switch(evt.getKeyCode()){
-            case KeyEvent.VK_LEFT: miNave.setPulsadoIzquierda(false); break;
-            case KeyEvent.VK_RIGHT: miNave.setPulsadoDerecha(false); break;
+            case KeyEvent.VK_LEFT: 
+                miNave.setPulsadoIzquierda(false); 
+                break;
+                
+            case KeyEvent.VK_RIGHT: 
+                miNave.setPulsadoDerecha(false); 
+                break;
             
         }
     }//GEN-LAST:event_formKeyReleased

@@ -27,7 +27,7 @@ public class Disparo {
     }
     
     public void mueve(){
-        posY-= 4;
+        posY-= 5;
         
     }
     
